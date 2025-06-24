@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redimensionador de Imágenes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-top: 50px;
+        }
+        canvas {
+            border: 1px dashed #d1d5db;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            display: block;
+        }
+        .message-box {
+            background-color: #ffecc6;
+            color: #8c5a00;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 500;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin-top: 20px;
+            }
+            .grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-4">Redimensionador de Imágenes para Redes Sociales</h1>
+        <div class="flex flex-col items-center">
+            <label for="imageUpload" class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                Cargar Imagen
+            </label>
+            <input type="file" id="imageUpload" accept="image/*" class="hidden mt-4">
+            <span id="fileName" class="text-sm text-gray-600 mt-2">Ningún archivo seleccionado</span>
+        </div>
+        <div class="w-full h-auto max-h-96 overflow-hidden flex items-center justify-center bg-gray-100 rounded-lg p-2">
+            <canvas id="imageCanvas"></canvas>
+        </div>
+        <div class="flex flex-col gap-4">
+            <div class="flex items-center space-x-2 mb-4">
+                <input type="checkbox" id="maintainAspectRatio" class="form-checkbox h-5 w-5 text-purple-600 rounded-md">
+                <label for="maintainAspectRatio" class="text-gray-700 font-semibold">Mantener relación de aspecto (con recorte)</label>
+            </div>
+            <label class="block text-gray-700 text-lg font-semibold">Selecciona un tamaño para red social:</label>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="360" data-height="360">Facebook (360x360)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="320" data-height="320">Instagram (320x320)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="400" data-height="400">X (Twitter) (400x400)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="400" data-height="400">LinkedIn (400x400)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="200" data-height="200">TikTok (200x200)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="800" data-height="800">YouTube (800x800)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="165" data-height="165">Pinterest (165x165)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="320" data-height="320">Snapchat (320x320)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="320" data-height="320">Threads (320x320)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="400" data-height="400">Bluesky (400x400)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="128" data-height="128">Tumblr (128x128)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="128" data-height="128">Discord (128x128)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="800" data-height="800">Twitch (800x800)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="256" data-height="256">Reddit (256x256)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="192" data-height="192">WhatsApp (192x192)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="512" data-height="512">Telegram (512x512)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="400" data-height="400">Mastodon (400x400)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="400" data-height="400">Dribbble (400x400)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="400" data-height="400">Behance (400x400)</button>
+                <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="500" data-height="500">GitHub (500x500)</button>
+            </div>
+            <button id="downloadBtn" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 mt-4 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                Descargar Imagen Redimensionada
+            </button>
+        </div>
+        <div id="messageBox" class="message-box hidden"></div>
+    </div>
+    <script>
+        const imageUpload = document.getElementById('imageUpload');
+        const fileNameSpan = document.getElementById('fileName');
+        const imageCanvas = document.getElementById('imageCanvas');
+        const ctx = imageCanvas.getContext('2d');
+        const resizeButtons = document.querySelectorAll('.resize-btn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const messageBox = document.getElementById('messageBox');
+        const maintainAspectRatioCheckbox = document.getElementById('maintainAspectRatio');
+        let originalImage = null;
+
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.className = 'message-box';
+            if (type === 'error') {
+                messageBox.classList.add('bg-red-200', 'text-red-800');
+            } else if (type === 'success') {
+                messageBox.classList.add('bg-green-200', 'text-green-800');
+            } else {
+                messageBox.classList.add('bg-orange-200', 'text-orange-800');
+            }
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 5000);
+        }
+
+        imageUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                fileNameSpan.textContent = file.name;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        originalImage = img;
+                        
+                        // Set canvas internal dimensions to the original image's dimensions
+                        // This allows CSS to scale it responsively without distorting the internal rendering
+                        imageCanvas.width = originalImage.width;
+                        imageCanvas.height = originalImage.height;
+                        
+                        // Draw the original image onto the canvas at its native resolution
+                        ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+                        ctx.drawImage(originalImage, 0, 0);
+
+                        downloadBtn.disabled = false;
+                        showMessage('Imagen cargada correctamente. Ahora selecciona un tamaño.', 'success');
+                    };
+                    img.onerror = () => {
+                        showMessage('No se pudo cargar la imagen. Asegúrate de que es un archivo de imagen válido.', 'error');
+                        fileNameSpan.textContent = 'Ningún archivo seleccionado';
+                        originalImage = null;
+                        downloadBtn.disabled = true;
+                    };
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => {
+                    showMessage('Error al leer el archivo.', 'error');
+                    fileNameSpan.textContent = 'Ningún archivo seleccionado';
+                    originalImage = null;
+                    downloadBtn.disabled = true;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                fileNameSpan.textContent = 'Ningún archivo seleccionado';
+                originalImage = null;
+                downloadBtn.disabled = true;
+            }
+        });
+
+        function resizeImage(targetWidth, targetHeight, maintainAspectRatio) {
+            if (!originalImage) {
+                showMessage('Por favor, carga una imagen primero.', 'error');
+                return;
+            }
+
+            let sourceX = 0;
+            let sourceY = 0;
+            let sourceWidth = originalImage.width;
+            let sourceHeight = originalImage.height;
+
+            const originalAspectRatio = originalImage.width / originalImage.height;
+            const targetAspectRatio = targetWidth / targetHeight;
+
+            if (maintainAspectRatio) {
+                // Calculate source rectangle to achieve "cover" effect (crop if necessary)
+                if (originalAspectRatio > targetAspectRatio) {
+                    // Original image is wider than target. Scale based on height to fill target height.
+                    // Then crop width from original.
+                    sourceHeight = originalImage.height; // Use full original height
+                    sourceWidth = sourceHeight * targetAspectRatio; // Calculate source width needed
+                    sourceX = (originalImage.width - sourceWidth) / 2; // Center crop horizontally
+                } else {
+                    // Original image is taller than target. Scale based on width to fill target width.
+                    // Then crop height from original.
+                    sourceWidth = originalImage.width; // Use full original width
+                    sourceHeight = sourceWidth / targetAspectRatio; // Calculate source height needed
+                    sourceY = (originalImage.height - sourceHeight) / 2; // Center crop vertically
+                }
+            }
+            // If not maintaining aspect ratio, source rect remains the whole original image.
+
+            let currentImageSource = originalImage; // This will be the source for drawing (original or temp canvas)
+
+            // Multi-step scaling for quality improvement
+            const maxSourceDim = Math.max(sourceWidth, sourceHeight);
+            const maxTargetDim = Math.max(targetWidth, targetHeight);
+            const qualityDownscaleFactor = 2;
+
+            if (maxSourceDim / qualityDownscaleFactor > maxTargetDim) {
+                let tempSourceWidth = sourceWidth;
+                let tempSourceHeight = sourceHeight;
+                let tempSourceX = sourceX;
+                let tempSourceY = sourceY;
+
+                while (Math.max(tempSourceWidth, tempSourceHeight) / qualityDownscaleFactor > maxTargetDim) {
+                    let stepCanvas = document.createElement('canvas');
+                    let stepCtx = stepCanvas.getContext('2d');
+
+                    // Mejora la calidad de suavizado
+                    stepCtx.imageSmoothingEnabled = true;
+                    stepCtx.imageSmoothingQuality = 'high';
+
+                    stepCanvas.width = Math.max(1, Math.round(tempSourceWidth / qualityDownscaleFactor));
+                    stepCanvas.height = Math.max(1, Math.round(tempSourceHeight / qualityDownscaleFactor));
+
+                    stepCtx.drawImage(
+                        currentImageSource,
+                        tempSourceX, tempSourceY, tempSourceWidth, tempSourceHeight,
+                        0, 0, stepCanvas.width, stepCanvas.height
+                    );
+
+                    currentImageSource = stepCanvas;
+                    tempSourceX = 0;
+                    tempSourceY = 0;
+                    tempSourceWidth = stepCanvas.width;
+                    tempSourceHeight = stepCanvas.height;
+                }
+                sourceX = 0;
+                sourceY = 0;
+                sourceWidth = currentImageSource.width;
+                sourceHeight = currentImageSource.height;
+            }
+
+            // Configura el suavizado en el canvas final
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+
+            imageCanvas.width = targetWidth;
+            imageCanvas.height = targetHeight;
+            ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
+            
+            ctx.drawImage(
+                currentImageSource,
+                sourceX, sourceY, sourceWidth, sourceHeight,
+                0, 0, targetWidth, targetHeight
+            );
+            showMessage(`Imagen redimensionada a ${targetWidth}x${targetHeight}.`, 'success');
+        }
+
+        resizeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const width = parseInt(button.dataset.width);
+                const height = parseInt(button.dataset.height);
+                const maintain = maintainAspectRatioCheckbox.checked;
+                resizeImage(width, height, maintain);
+            });
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!originalImage) {
+                showMessage('No hay imagen para descargar. Carga una imagen primero.', 'error');
+                return;
+            }
+            const dataURL = imageCanvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = `redimensionada_${imageCanvas.width}x${imageCanvas.height}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showMessage('Imagen descargada correctamente.', 'success');
+        });
+
+        window.onload = () => {
+            imageCanvas.width = 600;
+            imageCanvas.height = 400;
+            ctx.fillStyle = '#e0e0e0';
+            ctx.fillRect(0, 0, imageCanvas.width, imageCanvas.height);
+            ctx.fillStyle = '#606060';
+            ctx.font = '20px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('Carga una imagen aquí', imageCanvas.width / 2, imageCanvas.height / 2);
+        };
+    </script>
+</body>
+</html>
