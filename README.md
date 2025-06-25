@@ -1,4 +1,5 @@
 *** Redimensionator ***
+
 Una aplicación web sencilla y eficiente para redimensionar imágenes, optimizada para los tamaños de perfil de las principales redes sociales. Esta herramienta facilita la preparación de tus imágenes sin pérdida de calidad.
 
 🚀 Características
