@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redimensionador de Imágenes</title>
+    <title>Redimensionador de Imagenes</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -20,21 +21,32 @@
             width: 100%;
             background-color: #ffffff;
             border-radius: 12px;
+            border: 2px solid #a78bfa;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             padding: 32px;
             display: flex;
             flex-direction: column;
             gap: 24px;
             margin-top: 50px;
+            transition: box-shadow 0.3s;
+        }
+        .container:hover {
+            box-shadow: 0 16px 32px -4px rgba(80, 0, 180, 0.10), 0 8px 12px -2px rgba(80, 0, 180, 0.08);
         }
         canvas {
-            border: 1px dashed #d1d5db;
+            border: 2px dashed #a78bfa;
             background-color: #f9fafb;
             border-radius: 8px;
-            width: 100%;
-            height: auto;
-            max-height: 400px;
             display: block;
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            width: auto;
+            margin: 0 auto;
+            transition: border-color 0.3s;
+        }
+        canvas:focus, canvas:hover {
+            border-color: #7c3aed;
         }
         .message-box {
             background-color: #ffecc6;
@@ -44,10 +56,40 @@
             margin-top: 10px;
             text-align: center;
             font-weight: 500;
+            animation: fadeIn 0.7s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .resize-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        .resize-btn::after {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, #a78bfa22 0%, #7c3aed22 100%);
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 0;
+        }
+        .resize-btn:hover::after {
+            opacity: 1;
+        }
+        .resize-btn {
+            z-index: 1;
+        }
+        #downloadBtn i {
+            margin-right: 8px;
+        }
+        .upload-label i {
+            margin-right: 8px;
         }
         @media (max-width: 768px) {
             .container {
-                padding: 20px;
+                padding: 10px;
                 margin-top: 20px;
             }
             .grid-cols-2 {
@@ -58,21 +100,27 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-4">Redimensionador de Imágenes para Redes Sociales</h1>
+        <div class="flex flex-col items-center mb-2">
+            <div class="flex items-center gap-2 mb-1">
+                <i class="fa-solid fa-image text-purple-500 text-3xl"></i>
+                <h1 class="text-3xl font-bold text-gray-800">Redimensionador de Imágenes</h1>
+            </div>
+            <span class="text-gray-500 text-base">Optimiza tus imágenes para cualquier red social</span>
+        </div>
         <div class="flex flex-col items-center">
-            <label for="imageUpload" class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
-                Cargar Imagen
+            <label for="imageUpload" class="upload-label cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 flex items-center gap-2">
+                <i class="fa-solid fa-upload"></i> Cargar Imagen
             </label>
             <input type="file" id="imageUpload" accept="image/*" class="hidden mt-4">
             <span id="fileName" class="text-sm text-gray-600 mt-2">Ningún archivo seleccionado</span>
         </div>
         <div class="w-full h-auto max-h-96 overflow-hidden flex items-center justify-center bg-gray-100 rounded-lg p-2">
-            <canvas id="imageCanvas"></canvas>
+            <canvas id="imageCanvas" tabindex="0"></canvas>
         </div>
         <div class="flex flex-col gap-4">
             <div class="flex items-center space-x-2 mb-4">
                 <input type="checkbox" id="maintainAspectRatio" class="form-checkbox h-5 w-5 text-purple-600 rounded-md">
-                <label for="maintainAspectRatio" class="text-gray-700 font-semibold">Mantener relación de aspecto (con recorte)</label>
+                <label for="maintainAspectRatio" class="text-gray-700 font-semibold">Mantener relación de aspecto</label>
             </div>
             <label class="block text-gray-700 text-lg font-semibold">Selecciona un tamaño para red social:</label>
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -97,8 +145,8 @@
                 <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="400" data-height="400">Behance (400x400)</button>
                 <button class="resize-btn bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition duration-200" data-width="500" data-height="500">GitHub (500x500)</button>
             </div>
-            <button id="downloadBtn" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 mt-4 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                Descargar Imagen Redimensionada
+            <button id="downloadBtn" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-lg" disabled>
+                <i class="fa-solid fa-download"></i> Descargar Imagen Redimensionada
             </button>
         </div>
         <div id="messageBox" class="message-box hidden"></div>
@@ -140,12 +188,9 @@
                     img.onload = () => {
                         originalImage = img;
                         
-                        // Set canvas internal dimensions to the original image's dimensions
-                        // This allows CSS to scale it responsively without distorting the internal rendering
                         imageCanvas.width = originalImage.width;
                         imageCanvas.height = originalImage.height;
                         
-                        // Draw the original image onto the canvas at its native resolution
                         ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
                         ctx.drawImage(originalImage, 0, 0);
 
@@ -180,72 +225,27 @@
                 return;
             }
 
-            let sourceX = 0;
-            let sourceY = 0;
-            let sourceWidth = originalImage.width;
-            let sourceHeight = originalImage.height;
-
-            const originalAspectRatio = originalImage.width / originalImage.height;
-            const targetAspectRatio = targetWidth / targetHeight;
+            let drawWidth = targetWidth;
+            let drawHeight = targetHeight;
+            let offsetX = 0;
+            let offsetY = 0;
 
             if (maintainAspectRatio) {
-                // Calculate source rectangle to achieve "cover" effect (crop if necessary)
-                if (originalAspectRatio > targetAspectRatio) {
-                    // Original image is wider than target. Scale based on height to fill target height.
-                    // Then crop width from original.
-                    sourceHeight = originalImage.height; // Use full original height
-                    sourceWidth = sourceHeight * targetAspectRatio; // Calculate source width needed
-                    sourceX = (originalImage.width - sourceWidth) / 2; // Center crop horizontally
+                // Ajustar la imagen para que encaje completamente en el canvas, sin recortar
+                const originalAspect = originalImage.width / originalImage.height;
+                const targetAspect = targetWidth / targetHeight;
+
+                if (originalAspect > targetAspect) {
+                    // Imagen más ancha que el destino
+                    drawWidth = targetWidth;
+                    drawHeight = targetWidth / originalAspect;
+                    offsetY = (targetHeight - drawHeight) / 2;
                 } else {
-                    // Original image is taller than target. Scale based on width to fill target width.
-                    // Then crop height from original.
-                    sourceWidth = originalImage.width; // Use full original width
-                    sourceHeight = sourceWidth / targetAspectRatio; // Calculate source height needed
-                    sourceY = (originalImage.height - sourceHeight) / 2; // Center crop vertically
+                    // Imagen más alta que el destino
+                    drawHeight = targetHeight;
+                    drawWidth = targetHeight * originalAspect;
+                    offsetX = (targetWidth - drawWidth) / 2;
                 }
-            }
-            // If not maintaining aspect ratio, source rect remains the whole original image.
-
-            let currentImageSource = originalImage; // This will be the source for drawing (original or temp canvas)
-
-            // Multi-step scaling for quality improvement
-            const maxSourceDim = Math.max(sourceWidth, sourceHeight);
-            const maxTargetDim = Math.max(targetWidth, targetHeight);
-            const qualityDownscaleFactor = 2;
-
-            if (maxSourceDim / qualityDownscaleFactor > maxTargetDim) {
-                let tempSourceWidth = sourceWidth;
-                let tempSourceHeight = sourceHeight;
-                let tempSourceX = sourceX;
-                let tempSourceY = sourceY;
-
-                while (Math.max(tempSourceWidth, tempSourceHeight) / qualityDownscaleFactor > maxTargetDim) {
-                    let stepCanvas = document.createElement('canvas');
-                    let stepCtx = stepCanvas.getContext('2d');
-
-                    // Mejora la calidad de suavizado
-                    stepCtx.imageSmoothingEnabled = true;
-                    stepCtx.imageSmoothingQuality = 'high';
-
-                    stepCanvas.width = Math.max(1, Math.round(tempSourceWidth / qualityDownscaleFactor));
-                    stepCanvas.height = Math.max(1, Math.round(tempSourceHeight / qualityDownscaleFactor));
-
-                    stepCtx.drawImage(
-                        currentImageSource,
-                        tempSourceX, tempSourceY, tempSourceWidth, tempSourceHeight,
-                        0, 0, stepCanvas.width, stepCanvas.height
-                    );
-
-                    currentImageSource = stepCanvas;
-                    tempSourceX = 0;
-                    tempSourceY = 0;
-                    tempSourceWidth = stepCanvas.width;
-                    tempSourceHeight = stepCanvas.height;
-                }
-                sourceX = 0;
-                sourceY = 0;
-                sourceWidth = currentImageSource.width;
-                sourceHeight = currentImageSource.height;
             }
 
             // Configura el suavizado en el canvas final
@@ -255,11 +255,14 @@
             imageCanvas.width = targetWidth;
             imageCanvas.height = targetHeight;
             ctx.clearRect(0, 0, imageCanvas.width, imageCanvas.height);
-            
+
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, targetWidth, targetHeight);
+
             ctx.drawImage(
-                currentImageSource,
-                sourceX, sourceY, sourceWidth, sourceHeight,
-                0, 0, targetWidth, targetHeight
+                originalImage,
+                0, 0, originalImage.width, originalImage.height,
+                offsetX, offsetY, drawWidth, drawHeight
             );
             showMessage(`Imagen redimensionada a ${targetWidth}x${targetHeight}.`, 'success');
         }
@@ -278,15 +281,53 @@
                 showMessage('No hay imagen para descargar. Carga una imagen primero.', 'error');
                 return;
             }
-            const dataURL = imageCanvas.toDataURL('image/png');
+            // Recorta el canvas antes de descargar
+            const croppedCanvas = cropCanvasToContent(imageCanvas);
+            const dataURL = croppedCanvas.toDataURL('image/png');
             const link = document.createElement('a');
             link.href = dataURL;
-            link.download = `redimensionada_${imageCanvas.width}x${imageCanvas.height}.png`;
+            link.download = `redimensionada_${croppedCanvas.width}x${croppedCanvas.height}.png`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             showMessage('Imagen descargada correctamente.', 'success');
         });
+
+        function cropCanvasToContent(canvas, bgColor = [255,255,255,255]) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            const imageData = ctx.getImageData(0, 0, w, h);
+            const data = imageData.data;
+
+            let minX = w, minY = h, maxX = 0, maxY = 0;
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const i = (y * w + x) * 4;
+                    if (
+                        data[i] !== bgColor[0] ||
+                        data[i+1] !== bgColor[1] ||
+                        data[i+2] !== bgColor[2] ||
+                        data[i+3] !== bgColor[3]
+                    ) {
+                        if (x < minX) minX = x;
+                        if (x > maxX) maxX = x;
+                        if (y < minY) minY = y;
+                        if (y > maxY) maxY = y;
+                    }
+                }
+            }
+            if (minX > maxX || minY > maxY) return canvas;
+
+            const cropW = maxX - minX + 1;
+            const cropH = maxY - minY + 1;
+            const cropped = document.createElement('canvas');
+            cropped.width = cropW;
+            cropped.height = cropH;
+            const croppedCtx = cropped.getContext('2d');
+            croppedCtx.putImageData(ctx.getImageData(minX, minY, cropW, cropH), 0, 0);
+            return cropped;
+        }
 
         window.onload = () => {
             imageCanvas.width = 600;
